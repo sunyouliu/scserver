@@ -18,7 +18,7 @@
     <description>微信小程序文档目录与虚拟支付服务</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>1.8</java.version>
         <jjwt.version>0.12.6</jjwt.version>
 
     </properties>
