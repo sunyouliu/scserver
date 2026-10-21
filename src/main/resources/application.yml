@@ -1,17 +1,70 @@
 server:
-  port: 80
-
+  # 云托管会注入 PORT（通常为 80），本地仍可用 SERVER_PORT 覆盖。
+  port: ${PORT:${SERVER_PORT:8080}}
+  # 真机调试时手机需要访问电脑上的服务，监听所有网卡。
+  address: 0.0.0.0
 
 spring:
+  config:
+    # 可选：把密钥等配置写入外部 app.properties，避免依赖环境变量。
+    # 文件不存在时不会报错，环境变量仍然优先覆盖。
+    import: optional:file:./config/app.properties,optional:file:/etc/document-store/app.properties
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_ADDRESS}/${MYSQL_DATABASE:springboot_demo}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-  mvc:
-    view:
-      suffix: .html
-      prefix: /
+    url: ${DB_URL:jdbc:h2:file:./data/document-store;MODE=MySQL;AUTO_SERVER=TRUE}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  jackson:
+    default-property-inclusion: non_null
 
-mybatis:
-  mapper-locations: classpath*:mapper/*Mapper.xml
+app:
+  wechat:
+    app-id: ${WECHAT_APP_ID:}
+    app-secret: ${WECHAT_APP_SECRET:}
+  virtual-payment:
+    # 未配置时下单接口返回 503，避免服务端使用空参数生成无效签名。
+    offer-id: ${WECHAT_VIRTUAL_PAY_OFFER_ID:}
+    app-key: ${WECHAT_VIRTUAL_PAY_APP_KEY:}
+    # env=1 为米大师沙箱环境，env=0 为正式环境。
+    env: ${WECHAT_VIRTUAL_PAY_ENV:1}
+    currency-type: CNY
+    mode: ${WECHAT_VIRTUAL_PAY_MODE:short_series_goods}
+    # CSV 未提供或无法解析价格时的兜底价，单位为分。
+    price-fen: ${DOCUMENT_PRICE_FEN:100}
+    # 未配置时服务端拒绝启动，避免回调验签使用默认 Token 被伪造。
+    callback-token: ${WECHAT_CALLBACK_TOKEN:}
+  catalog:
+    csv-location: ${CATALOG_CSV_LOCATION:classpath:res.csv}
+    # 服务器本地图片目录，缩略图与详情图共用同一张 序号.jpg。
+    image-directory: ${IMAGE_DIRECTORY:./images}
+    # 静态图片访问路径，需与小程序 downloadFile 合法域名一致。
+    image-url-prefix: ${IMAGE_URL_PREFIX:/images}
+    # 商品基本不变，首页分页结果缓存时长与容量。
+    cache-ttl-seconds: ${CATALOG_CACHE_TTL_SECONDS:3600}
+    cache-max-entries: ${CATALOG_CACHE_MAX_ENTRIES:200}
+  free-download:
+    # 限时免费下载开关，关闭后下载链接接口返回 503。
+    enabled: ${FREE_DOWNLOAD_ENABLED:true}
+    # 统计每日免费下载次数使用的时区。
+    time-zone: ${FREE_QUOTA_TIME_ZONE:Asia/Shanghai}
+  ad:
+    # 支持看广告免费下载的最高价格，单位为分（50 分 = 0.5 元）。
+    free-download-max-price-fen: ${AD_FREE_DOWNLOAD_MAX_PRICE_FEN:50}
+    # 统计每日免费下载次数使用的时区。
+    time-zone: ${AD_QUOTA_TIME_ZONE:Asia/Shanghai}
+  security:
+    # HmacSHA256 要求至少 32 字节密钥；未配置时服务端拒绝启动。
+    jwt-secret: ${JWT_SECRET:}
+    jwt-expiration-seconds: ${JWT_EXPIRATION_SECONDS:604800}
+    session-key-encryption-secret: ${SESSION_KEY_ENCRYPTION_SECRET:}
+
+logging:
+  level:
+    com.example.documentstore: INFO

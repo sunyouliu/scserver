@@ -1,0 +1,45 @@
+# 复制为同目录下的 app.properties 后填写真实值。
+# 键名与环境变量一致，可把 export 的值原样搬进来。
+# 该文件已被 server/.gitignore 忽略，请勿提交真实密钥。
+
+# 服务端口
+SERVER_PORT=8080
+
+# 数据库，默认持久化 H2；生产可切换 MySQL
+DB_URL=jdbc:h2:file:./data/document-store;MODE=MySQL;AUTO_SERVER=TRUE
+DB_USERNAME=sa
+DB_PASSWORD=
+# DB_URL=jdbc:mysql://127.0.0.1:3306/document_store?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+# DB_USERNAME=document_store
+# DB_PASSWORD=强密码
+
+# 微信小程序
+WECHAT_APP_ID=小程序AppID
+WECHAT_APP_SECRET=小程序AppSecret
+
+# 虚拟支付
+WECHAT_VIRTUAL_PAY_OFFER_ID=虚拟支付OfferID
+WECHAT_VIRTUAL_PAY_APP_KEY=虚拟支付AppKey
+# env=1 沙箱环境，env=0 正式环境
+WECHAT_VIRTUAL_PAY_ENV=1
+WECHAT_CALLBACK_TOKEN=消息推送Token
+# CSV 未提供价格时的兜底价，单位分
+DOCUMENT_PRICE_FEN=100
+
+# 看广告免费下载
+AD_FREE_DOWNLOAD_MAX_PRICE_FEN=50
+AD_QUOTA_TIME_ZONE=Asia/Shanghai
+
+# 目录与图片
+CATALOG_CSV_LOCATION=classpath:res.csv
+IMAGE_DIRECTORY=./images
+IMAGE_URL_PREFIX=/images
+
+# 首页分页缓存
+CATALOG_CACHE_TTL_SECONDS=3600
+CATALOG_CACHE_MAX_ENTRIES=200
+
+# 安全，必填且不要使用默认值
+JWT_SECRET=mp1PQp67I35spcDPcJztE6mG/nfrDy/R2zINyDSJXUw= #至少32字节的随机密钥
+JWT_EXPIRATION_SECONDS=604800
+SESSION_KEY_ENCRYPTION_SECRET=croCEN+Dezw9Y/Xgd6hRnhhATxSQLg//rChG64ZVT10= #独立随机加密密钥
